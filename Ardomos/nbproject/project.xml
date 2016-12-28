@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.cnd.makeproject</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/make-project/1">
+            <name>Domosat</name>
+            <c-extensions>cpp</c-extensions>
+            <cpp-extensions/>
+            <header-extensions>h,hpp</header-extensions>
+            <sourceEncoding>UTF-8</sourceEncoding>
+            <make-dep-projects/>
+            <sourceRootList>
+                <sourceRootElem>/home/hsaturn/Projets/Arduino/Domosat</sourceRootElem>
+                <sourceRootElem>/home/hsaturn/arduino/arduino-1.0.6/libraries</sourceRootElem>
+                <sourceRootElem>/home/hsaturn/Projets/Arduino/arduino-1.0.5/hardware/arduino/cores/arduino/avr-libc</sourceRootElem>
+            </sourceRootList>
+            <confList>
+                <confElem>
+                    <name>Debug</name>
+                    <type>1</type>
+                </confElem>
+                <confElem>
+                    <name>Release</name>
+                    <type>1</type>
+                </confElem>
+            </confList>
+            <formatting>
+                <project-formatting-style>false</project-formatting-style>
+            </formatting>
+        </data>
+    </configuration>
+</project>

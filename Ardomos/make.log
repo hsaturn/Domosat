@@ -1,0 +1,11 @@
+"make" -f nbproject/Makefile-Debug.mk QMAKE= SUBPROJECTS= .build-conf
+make[1]: entrant dans le répertoire « /home/hsaturn/Projets/Arduino/Domosat »
+"make"  -f nbproject/Makefile-Debug.mk dist/Debug/AVR-Linux-x86/domosat
+make[2]: entrant dans le répertoire « /home/hsaturn/Projets/Arduino/Domosat »
+mkdir -p build/Debug/AVR-Linux-x86
+rm -f "build/Debug/AVR-Linux-x86/main.o.d"
+/home/hsaturn/arduino/arduino-1.0.6/hardware/tools/avr/bin/avr-g++ -c -g -Os -Wall -ffunction-sections -fdata-sections -mmcu=atmega328p -DF_CPU=16000000L -MMD -DUSB_VID=null -DUSB_PID=null -DARDUINO=106 -fno-exceptions -c -g -I/home/hsaturn/arduino/arduino-1.0.6/hardware/arduino/cores/arduino -I/home/hsaturn/arduino/arduino-1.0.6/hardware/arduino/variants/standard -I/home/hsaturn/arduino/arduino-1.0.6/libraries/EEPROM -I/home/hsaturn/arduino/arduino-1.0.6/libraries/DHT -I/home/hsaturn/arduino/arduino-1.0.6/libraries/hsaturn -I/home/hsaturn/arduino/arduino-1.0.6/libraries/ST7735R -I/home/hsaturn/arduino/arduino-1.0.6/libraries/SPI -I/home/hsaturn/arduino/arduino-1.0.6/libraries/Mirf -c -g -Os -Wall -ffunction-sections -fdata-sections -mmcu=atmega328p -DF_CPU=16000000L -MMD -DUSB_VID=null -DUSB_PID=null -DARDUINO=106 -fno-exceptions   -c -g -I-c -g -I/home/hsaturn/arduino/arduino-1.0.6/hardware/arduino/cores/arduino -I/home/hsaturn/arduino/arduino-1.0.6/hardware/arduino/variants/standard -I/home/hsaturn/arduino/arduino-1.0.6/libraries/EEPROM -I/home/hsaturn/arduino/arduino-1.0.6/libraries/DHT -I/home/hsaturn/arduino/arduino-1.0.6/libraries/hsaturn -I/home/hsaturn/arduino/arduino-1.0.6/libraries/ST7735R -I/home/hsaturn/arduino/arduino-1.0.6/libraries/SPI -I/home/hsaturn/arduino/arduino-1.0.6/libraries/Mirf -MMD -MP -MF "build/Debug/AVR-Linux-x86/main.o.d" -o build/Debug/AVR-Linux-x86/main.o main.cpp
+mkdir -p dist/Debug/AVR-Linux-x86
+avr-gcc -o dist/Debug/AVR-Linux-x86/domosat build/Debug/AVR-Linux-x86/main.o  lib/core/arduinocore.a lib/libs/arduinolibs.a -Os -Wl,--gc-sections,--relax -mmcu=atmega328p -lm
+make[2]: quittant le répertoire « /home/hsaturn/Projets/Arduino/Domosat »
+make[1]: quittant le répertoire « /home/hsaturn/Projets/Arduino/Domosat »

@@ -1,0 +1,221 @@
+# Arduino NetBeans plugin (http://arduino-netbeans.googlecode.com)
+# ------------------------------------------------------------------------------
+# Configure the values of COM_PORT, ARDUINO_BASE_DIR and platform (Uno or Mega). 
+# Uncomment the declarations of the libraries that you want to use.
+# For Arduino Duemilanove you must change the BAUD_RATE to 57600 bps.
+# Based on: http://playground.arduino.cc/Code/Netbeans
+
+COM_PORT = /dev/ttyUSB1
+
+// ARDUINO_MODEL = atmega168
+ARDUINO_MODEL = atmega328p
+
+ifeq ($(ARDUINO_MODEL),atmega328p)
+    BAUD_RATE = 57600
+    DEFINES=-DHAVE_DISPLAY=0 -DDEBUG=0 -DDHT_MUL10=1
+else ifeq ($(ARDUINO_MODEL),atmega168)
+    BAUD_RATE = 19200
+    DEFINES=-DATMEGA168=0 -DHAVE_MODULE_DHT=0 -DDEBUG=0  -DDHT_MUL10=1
+endif
+
+ARDUINO_VERSION = 106
+ARDUINO_BASE_DIR = /home/hsaturn/arduino/arduino-1.0.6
+ARDUINO_BASE_TOOLS = ${ARDUINO_BASE_DIR}/hardware/tools/avr/bin
+
+ARDUINO_CORE_DIR = ${ARDUINO_BASE_DIR}/hardware/arduino/cores/arduino
+#ARDUINO_CORE_DIR = /usr/lib/avr/include/avr
+ARDUINO_LIB_DIR = ${ARDUINO_BASE_DIR}/libraries
+ARDUINO_BIN_DIR = ${ARDUINO_BASE_TOOLS}
+LIB_CORE_DIR = lib/core
+LIB_LIBS_DIR = lib/libs
+ARDUINO_LIB_CORE = ${LIB_CORE_DIR}/arduinocore.a
+ARDUINO_LIB_LIBS = ${LIB_LIBS_DIR}/arduinolibs.a
+JDOMOSAT_REMOTE_PATH=/home/hsaturn/Projets/Java/JDomosat/arduino/build/classes
+JDOMOSAT_REMOTE_CLASS=com.hsaturn.arduino.remote.JDomosatClientRemote
+
+# Arduino Uno:
+ARDUINO_PROGRAMMER = arduino
+ARDUINO_PINS_DIR = ${ARDUINO_BASE_DIR}/hardware/arduino/variants/standard
+
+# Arduino Mega 2560:
+#ARDUINO_MODEL = atmega2560
+#ARDUINO_PROGRAMMER = wiring
+#ARDUINO_PINS_DIR = ${ARDUINO_BASE_DIR}/hardware/arduino/variants/mega
+
+# Arduino Duemilanove:
+#BAUD_RATE = 57600
+
+# Include the libraries that you want. This are subfolders of "arduino-1.0.4/libraries" folder:
+INCLUDE_LIBS=EEPROM;DHT;hsaturn;SPI;Mirf;Streaming;
+#INCLUDE_LIBS=EEPROM;Esplora;Ethernet;Ethernet/utility;Firmata;GSMSHIELD;\
+LiquidCrystal;MemoryFree;RTClib;SD;SD/utility;Servo;SoftwareSerial;SPI;\
+Stepper;WiFi;WiFi/utility;Wire;Wire/utility;\
+
+# Select the Windows or Linux config of AVR_DUDE (upload utility):
+AVR_DUDE_LINUX = ${ARDUINO_BASE_DIR}/hardware/tools/avrdude -C${ARDUINO_BASE_DIR}/hardware/tools/avrdude.conf
+AVR_DUDE = ${AVR_DUDE_LINUX}
+	
+#
+############################# END OF USER CHANGES #############################
+#
+	
+INCLUDE = -c -g \
+-I${ARDUINO_CORE_DIR} \
+-I${ARDUINO_PINS_DIR} \
+$(patsubst %,-I${ARDUINO_LIB_DIR}/%,$(subst ;, ,$(INCLUDE_LIBS)))
+
+FLAGS_GCC = -c -g -Os -Wall -ffunction-sections -fdata-sections -mmcu=${ARDUINO_MODEL} -DF_CPU=16000000L -MMD -DUSB_VID=null -DUSB_PID=null -DARDUINO=${ARDUINO_VERSION} ${DEFINES}
+FLAGS_GPP = ${FLAGS_GCC} -fno-exceptions
+FLAGS_LINKER = ${ARDUINO_LIB_CORE} ${ARDUINO_LIB_LIBS} -Os -Wl,--gc-sections,--relax -mmcu=${ARDUINO_MODEL} -lm
+CMD_AVR_GCC = ${ARDUINO_BIN_DIR}/avr-gcc ${FLAGS_GCC} ${INCLUDE}
+CMD_AVR_GPP = ${ARDUINO_BIN_DIR}/avr-g++ ${FLAGS_GPP} ${INCLUDE}
+CMD_AVR_AR = ${ARDUINO_BIN_DIR}/avr-ar rcs
+AVR_OBJCOPY = ${ARDUINO_BIN_DIR}/avr-objcopy
+AVR_SIZE = ${ARDUINO_BIN_DIR}/avr-size
+
+CORE_CPP_SOURCES = $(wildcard ${ARDUINO_CORE_DIR}/*.cpp)
+CORE_C_SOURCES = $(wildcard ${ARDUINO_CORE_DIR}/*.c)
+COBJECTS=$(CORE_CPP_SOURCES:.cpp=.cpp.o) $(CORE_C_SOURCES:.c=.c.o)
+CORE_OBJECTS=$(subst ${ARDUINO_CORE_DIR},${LIB_CORE_DIR},${COBJECTS})
+
+LIB_CPP_SOURCES = $(wildcard $(patsubst %,${ARDUINO_LIB_DIR}/%/*.cpp,$(subst ;, ,$(INCLUDE_LIBS))))
+LIB_C_SOURCES = $(wildcard $(patsubst %,${ARDUINO_LIB_DIR}/%/*.c,$(subst ;, ,$(INCLUDE_LIBS))) )
+LOBJECTS=$(LIB_CPP_SOURCES:.cpp=.cpp.o) $(LIB_C_SOURCES:.c=.c.o)
+LIB_OBJECTS=$(subst ${ARDUINO_LIB_DIR},${LIB_LIBS_DIR},${LOBJECTS})
+
+# Environment 
+MKDIR=mkdir
+CP=cp
+CCADMIN=CCadmin
+
+# build
+build: .build-post Makefile	
+${ARDUINO_LIB_CORE}: ${CORE_OBJECTS}
+	${CMD_AVR_AR} ${ARDUINO_LIB_CORE} ${CORE_OBJECTS}
+	
+${ARDUINO_LIB_LIBS}: ${LIB_OBJECTS}
+	${CMD_AVR_AR} ${ARDUINO_LIB_LIBS} ${CORE_OBJECTS} ${LIB_OBJECTS}
+	
+libraries: ${ARDUINO_LIB_CORE} ${ARDUINO_LIB_LIBS}
+
+${LIB_CORE_DIR}/%.cpp.o: ${ARDUINO_CORE_DIR}/%.cpp
+	mkdir -p $(dir $@)
+	${CMD_AVR_GPP} $< -o $@
+
+${LIB_CORE_DIR}/%.c.o: ${ARDUINO_CORE_DIR}/%.c
+	mkdir -p $(dir $@)
+	${CMD_AVR_GCC} $< -o $@
+
+${LIB_LIBS_DIR}/%.cpp.o: ${ARDUINO_LIB_DIR}/%.cpp
+	mkdir -p $(dir $@)
+	${CMD_AVR_GPP} $< -o $@
+
+${LIB_LIBS_DIR}/%.c.o: ${ARDUINO_LIB_DIR}/%.c
+	mkdir -p $(dir $@)
+	${CMD_AVR_GCC} $< -o $@
+
+.build-pre: .build-pre-pre libraries
+
+#Unconditional Build
+.build-pre-pre:
+	
+SIZE_PRG=`${AVR_SIZE} --mcu=${ARDUINO_MODEL} -C ${CND_ARTIFACT_PATH_${CONF}} | grep "Program"  | awk '{print $$2}'` 
+SIZE_RAM=`${AVR_SIZE} --mcu=${ARDUINO_MODEL} -C ${CND_ARTIFACT_PATH_${CONF}} | grep "Data:"  | awk '{print $$2}'` 
+OLD_SIZE_PRG=`cat .old_size_prg`
+OLD_SIZE_RAM=`cat .old_size_ram`
+DELTA_PRG=$$(expr $(SIZE_PRG) - $(OLD_SIZE_PRG))
+DELTA_RAM=$$(expr $(SIZE_RAM) - $(OLD_SIZE_RAM))
+
+.build-post: .build-impl	
+	${AVR_OBJCOPY} -O ihex ${CND_ARTIFACT_PATH_${CONF}} ${CND_ARTIFACT_PATH_${CONF}}.hex
+	${AVR_SIZE} --mcu=${ARDUINO_MODEL} -C ${CND_ARTIFACT_PATH_${CONF}}
+	@touch .old_size_prg .old_size_ram
+	@echo "SIZE PROGRAM = $(SIZE_PRG), DELTA=$(DELTA_PRG)"
+	@echo "SIZE RAM     = $(SIZE_RAM), DELTA=$(DELTA_RAM)"
+	@echo $(SIZE_PRG) > .old_size_prg
+	@echo $(SIZE_RAM) > .old_size_ram
+	
+#upload: .build-post
+upload:
+	@echo "Test tailles program & data"
+	${AVR_SIZE} --mcu=${ARDUINO_MODEL} -C ${CND_ARTIFACT_PATH_${CONF}} | grep "^Program:" | sed 's/\./ /g' | awk '{print $$4}' | sed 's/(//g' | xargs -l -i test {} -lt 100
+	${AVR_SIZE} --mcu=${ARDUINO_MODEL} -C ${CND_ARTIFACT_PATH_${CONF}} | grep "^Data:" | sed 's/\./ /g' | awk '{print $$4}' | sed 's/(//g' | xargs -l -i test {} -lt 100
+	-kill -9 $$(fuser ${COM_PORT} 2>/dev/null) && sleep .5
+	-cd ${JDOMOSAT_REMOTE_PATH}; java ${JDOMOSAT_REMOTE} ${JDOMOSAT_REMOTE_CLASS} 127.0.0.1 3233 close_port
+	${AVR_DUDE} -v -p${ARDUINO_MODEL} -c${ARDUINO_PROGRAMMER} -P${COM_PORT} -b${BAUD_RATE} -V -D -Uflash:w:${CND_ARTIFACT_PATH_${CONF}}.hex:i
+	-cd ${JDOMOSAT_REMOTE_PATH}; java ${JDOMOSAT_REMOTE} ${JDOMOSAT_REMOTE_CLASS} 127.0.0.1 3233 open_port
+
+# clean
+clean: .clean-post
+
+.clean-pre:
+# Add your pre 'clean' code here...
+
+.clean-post: .clean-impl
+# Add your post 'clean' code here...
+
+
+# clobber
+clobber: .clobber-post
+
+.clobber-pre:
+# Add your pre 'clobber' code here...
+
+.clobber-post: .clobber-impl
+# Add your post 'clobber' code here...
+
+
+# all
+all: .all-post
+
+.all-pre:
+# Add your pre 'all' code here...
+
+.all-post: .all-impl
+# Add your post 'all' code here...
+
+
+# build tests
+build-tests: .build-tests-post
+
+.build-tests-pre:
+# Add your pre 'build-tests' code here...
+
+.build-tests-post: .build-tests-impl
+# Add your post 'build-tests' code here...
+
+
+# run tests
+test: .test-post
+
+.test-pre: build-tests
+# Add your pre 'test' code here...
+
+.test-post: .test-impl
+# Add your post 'test' code here...
+
+
+# help
+help: .help-post
+
+.help-pre:
+# Add your pre 'help' code here...
+
+.help-post: .help-impl
+# Add your post 'help' code here...
+
+
+# include project implementation makefile
+include nbproject/Makefile-impl.mk
+CC=${CMD_AVR_GCC}
+CXX=${CMD_AVR_GPP}
+CCC=${CXX}
+AS=${ARDUINO_BIN_DIR}/avr-as
+
+# include project make variables
+include nbproject/Makefile-variables.mk
+
+vars:
+	@echo "Includes = ${INCLUDE}" | sed 's/-I//g'
+	@echo "COBJECTS = $(COBJECTS)"
+	@echo "LOBJECTS = $(LOBJECTS)"
