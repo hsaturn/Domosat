@@ -1,0 +1,27 @@
+{>var}	signifie que c'est une variable qu'on envoie
+{<var} signifie que c'est une variable qu'on reçoit
+
+Module Prog   : Trivial
+
+
+Module C
+out Read clock: m{>id}QC00{<hhmm,16}{<dow,16}
+out Set clock : m{>id}2C01{>hhmm,16}
+in  Clock     : Q00{<hhmm,16}
+in  Dow       : Q01{<dow}
+
+Module R
+out Set mode  : m{>id}2R{>flags,8}{>state,8}
+in  Read mode : m{>id}QR{<flags}{<state}
+
+Module T
+out Set device : m{>id}1T{>dev,1}	// NYI
+in  Read t° h% : m{>id}QT00{<temp,16}{<hygro,16}
+
+Module O : Eeprom
+out Write byte : m{>id}1O{>offset,16}{>byte,8}
+in  Read byte  : m{>id}RO{>offset,16}{<byte,8}
+
+
+
+

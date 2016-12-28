@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: com.hsaturn.arduino
+OpenIDE-Module-Install: com/hsaturn/arduino/document/Installer.class
+OpenIDE-Module-Localizing-Bundle: com/hsaturn/arduino/gui/Bundle.properties
+OpenIDE-Module-Requires: org.openide.windows.WindowManager
+OpenIDE-Module-Specification-Version: 1.0
+

@@ -1,0 +1,10 @@
+TODO doc
+
+Static binary used to generate prefix / postfix expression for Ardomos rules
+
+ex: wr16('R', t°<170 or t°<190 and hhmm>600 and hhmm<2200)
+
+gives the postfix : 'R' 'T' rd1600 170 less 'T' rd1600 190 less 'C' rd16 600 gt 'C' rd16 2200 less and and or wr16
+
+The postfix can be used then to be compiled in hex by JDomosat and sent to the arduino Program Module of Ardomos
+	
