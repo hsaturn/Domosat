@@ -215,7 +215,8 @@ ModuleProg::step(Message* p) {
 					p->writeInt8(b);
 					p->writeInt16(a);
 					p->dump();
-					Module::dispatch(p);
+					pComm->send(p);
+					//Module::dispatch(p);
 					delete p;
 					break;
 				}
@@ -234,9 +235,8 @@ ModuleProg::step(Message* p) {
 						Message* mp = new Message(c, e, d);
 						mp->writeInt8(b);
 						miPOffset = a;
-						Module::dispatch(mp);
-						
-						// The program is now stopped, and is waiting for mp to be deleted (by ModuleProg::msgHandler)
+						pComm->send(mp);
+						// The program is now stopped (mp), and is waiting for mp to be deleted (by ModuleProg::msgHandler)
 					}
 					break;
 
@@ -286,7 +286,6 @@ ModuleProg::step(Message* p) {
 
 				// FIXME NYI
 				case PROG_UTYPE_OP(CMD_PAUSE):
-
 					break;
 
 				default:
@@ -358,7 +357,8 @@ ModuleProg::msgHandler(uint8_t iMsgType, Message * p) {
 					break;
 
 				case 3: // STEP (Macro F6))
-					step(p);
+					if (mp==0)
+						step(p);
 					break;
 					
 				case 4: // showStack()... lol
@@ -375,6 +375,12 @@ ModuleProg::msgHandler(uint8_t iMsgType, Message * p) {
 			p->writeInt8(PROG_MSG_STAT);
 			p->writeInt16(freeMemory());
 			p->writeInt16(mPc);
+			
+			// Ajout état mp (message pending) -> todo non géré dans jdomosat
+			if (mp)
+				p->writeInt8(1);
+			else
+				p->writeInt8(0);
 			showStack(p);
 
 			return MSG_RET_OK;
